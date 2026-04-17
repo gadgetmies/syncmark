@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 300px;
+      padding: 16px;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn:hover {
+      background: #1d4ed8;
+    }
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="title">SyncMark</div>
+  <p style="font-size: 14px; color: #64748b; margin-bottom: 16px;">
+    Quickly add the current page to your local-first bookmarks.
+  </p>
+  <button id="addBtn" class="btn">Add Current Page</button>
+
+  <div style="margin-top: 12px;">
+    <input type="text" id="tagsInput" placeholder="Add tags (comma separated)..." list="tagSuggestions" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; font-size: 13px; outline: none;">
+    <datalist id="tagSuggestions"></datalist>
+  </div>
+
+  <button id="manageBtn" class="btn" style="margin-top: 10px; background: #64748b;">Manage Bookmarks</button>
+
+  <p style="font-size: 11px; color: #94a3b8; margin-top: 12px; text-align: center;">
+    SyncMark is fully local & offline.
+  </p>
+
+  <script src="popup.js"></script>
+</body>
+</html>

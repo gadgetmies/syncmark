@@ -1,0 +1,5 @@
+{
+  "name": "SyncMark",
+  "description": "A local-first bookmark manager that syncs via your favorite cloud storage (iCloud, Dropbox, Google Drive) using a local JSON file.",
+  "requestFramePermissions": []
+}
