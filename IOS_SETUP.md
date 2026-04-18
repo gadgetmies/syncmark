@@ -7,22 +7,24 @@ This guide explains how to build and run SyncMark as a native iOS application. U
 - **Node.js** and **npm** (already used for this project).
 
 ## 2. Build the Web Project
-First, build the React project so Capacitor has the latest files to wrap:
+**CRITICAL:** Capacitor works by "wrapping" your built web assets. You MUST generate the `dist` folder before syncing. In your terminal, run:
 ```bash
 npm run build
 ```
+This creates the `dist` directory containing your `index.html` and compiled assets.
 
 ## 3. Initialize and Open iOS Project
-Run the following commands in your terminal:
+Ensure the `dist` folder exists, then run:
 ```bash
-# Add the iOS platform
-npx cap add ios
+# Add the iOS platform (only needs to be done once)
+npx @capacitor/cli add ios
 
 # Sync your web code to the iOS project
-npx cap sync
+# Run this EVERY time you make changes to your React code
+npx @capacitor/cli sync
 
 # Open the project in Xcode
-npx cap open ios
+npx @capacitor/cli open ios
 ```
 
 ## 4. Implementing the Share Extension (The "Share Menu" feature)

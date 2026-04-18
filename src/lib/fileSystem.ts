@@ -1,4 +1,6 @@
 import { Bookmark, BookmarkFile } from '../types';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 
 declare global {
   interface Window {
@@ -8,10 +10,15 @@ declare global {
 }
 
 export const isFileSystemApiSupported = () => {
-  return 'showOpenFilePicker' in window && 'showSaveFilePicker' in window;
+  return ('showOpenFilePicker' in window && 'showSaveFilePicker' in window) || Capacitor.isNativePlatform();
 };
 
 export async function getFileHandle() {
+  if (Capacitor.isNativePlatform()) {
+    // On native, we return a "virtual" handle which is just the known filename
+    // Actually, we'll use a string 'native-config' to identify it
+    return 'native-bookmarks' as any;
+  }
   if (!isFileSystemApiSupported()) {
     return null;
   }
@@ -58,6 +65,19 @@ export async function createNewFile() {
 }
 
 export async function readFile(handle: FileSystemFileHandle): Promise<BookmarkFile | null> {
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const result = await Filesystem.readFile({
+        path: 'bookmarks.json',
+        directory: Directory.Documents,
+        encoding: Encoding.UTF8,
+      });
+      return JSON.parse(result.data as string);
+    } catch (err) {
+      console.error('Error reading native file, might not exist yet', err);
+      return null;
+    }
+  }
   try {
     const file = await handle.getFile();
     const content = await file.text();
@@ -69,6 +89,20 @@ export async function readFile(handle: FileSystemFileHandle): Promise<BookmarkFi
 }
 
 export async function writeFile(handle: FileSystemFileHandle, data: BookmarkFile) {
+  if (Capacitor.isNativePlatform()) {
+    try {
+      await Filesystem.writeFile({
+        path: 'bookmarks.json',
+        data: JSON.stringify(data, null, 2),
+        directory: Directory.Documents,
+        encoding: Encoding.UTF8,
+      });
+      return true;
+    } catch (err) {
+      console.error('Error writing native file', err);
+      return false;
+    }
+  }
   try {
     const writable = await handle.createWritable();
     await writable.write(JSON.stringify(data, null, 2));

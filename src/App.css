@@ -21,8 +21,24 @@ body {
 }
 
 .app-container { min-height: 100vh; display: flex; flex-direction: column; }
-.header { position: sticky; top: 0; z-index: 30; background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-slate-200); }
-.header-inner { max-width: 80rem; margin: 0 auto; padding: 0 1rem; height: 4rem; display: flex; align-items: center; justify-content: space-between; }
+.header { 
+  position: sticky; 
+  top: 0; 
+  z-index: 30; 
+  background-color: rgba(255, 255, 255, 0.8); 
+  backdrop-filter: blur(12px); 
+  border-bottom: 1px solid var(--border-slate-200);
+  padding-top: env(safe-area-inset-top);
+}
+.header-inner { 
+  max-width: 80rem; 
+  margin: 0 auto; 
+  padding: 0 1rem; 
+  height: 4rem; 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+}
 .logo-section { display: flex; align-items: center; gap: 0.75rem; }
 .logo-box { width: 2.5rem; height: 2.5rem; background-color: var(--primary); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); }
 .logo-text h1 { margin: 0; font-size: 1.125rem; font-weight: 700; letter-spacing: -0.025em; }

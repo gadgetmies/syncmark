@@ -28,6 +28,8 @@ import {
 } from './lib/fileSystem';
 import { BookmarkCard } from './components/BookmarkCard';
 import './App.css';
+import { Capacitor } from '@capacitor/core';
+import { App as CapApp } from '@capacitor/app';
 
 export default function App() {
   const [fileHandle, setFileHandle] = useState<FileSystemFileHandle | null>(null);
@@ -40,6 +42,54 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'bookmarks' | 'extension'>('bookmarks');
 
   const isSupported = isFileSystemApiSupported();
+  const isNative = Capacitor.isNativePlatform();
+
+  // Load from native file or cache on mount
+  useEffect(() => {
+    const loadInitialData = async () => {
+      if (isNative) {
+        const nativeContent = await readFile('native-bookmarks' as any);
+        if (nativeContent) {
+          setData(nativeContent);
+          setFileHandle('native-bookmarks' as any);
+          showStatus('success', 'Native bookmarks synced');
+          return;
+        }
+      }
+
+      const cachedData = localStorage.getItem('syncmark_cache');
+      if (cachedData) {
+        try {
+          const parsed = JSON.parse(cachedData);
+          setData(parsed);
+          showStatus('info', 'Loaded from local cache');
+        } catch (err) {
+          console.error('Failed to parse cache', err);
+        }
+      }
+    };
+
+    loadInitialData();
+
+    // Listen for app focus/resume to refresh data if needed
+    if (isNative) {
+      const listener = CapApp.addListener('appStateChange', ({ isActive }) => {
+        if (isActive) {
+          loadInitialData();
+        }
+      });
+      return () => {
+        listener.then(l => l.remove());
+      };
+    }
+  }, [isNative]);
+
+  // Save to local storage whenever data changes
+  useEffect(() => {
+    if (data) {
+      localStorage.setItem('syncmark_cache', JSON.stringify(data));
+    }
+  }, [data]);
 
   // Listen for messages from the extension
   useEffect(() => {
@@ -65,13 +115,6 @@ export default function App() {
     };
 
     window.addEventListener('message', handleMessage);
-    
-    // Also handle chrome.runtime messages if we're in an extension context
-    // But since this is the web app, we rely on the extension finding our tab
-    // and using chrome.tabs.sendMessage, which we can listen for if we're 
-    // running as a content script, OR the extension can use window.postMessage
-    // if it has access to the page.
-    
     return () => window.removeEventListener('message', handleMessage);
   }, [data]);
 
@@ -86,6 +129,19 @@ export default function App() {
   }, [data]);
 
   const handleOpenFile = async () => {
+    if (isNative) {
+      // On native, we "Import" by using the browser picker and then saving to native storage
+      const content = await uploadFileFallback();
+      if (content) {
+        setData(content);
+        const handle = 'native-bookmarks' as any;
+        setFileHandle(handle);
+        await writeFile(handle, content);
+        showStatus('success', 'File imported to native storage');
+      }
+      return;
+    }
+
     if (isSupported) {
       const handle = await getFileHandle();
       if (handle) {
